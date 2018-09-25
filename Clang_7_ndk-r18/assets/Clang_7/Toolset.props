@@ -1,0 +1,62 @@
+﻿<!--
+***********************************************************************************************
+Toolset.props
+
+WARNING:  DO NOT MODIFY this file unless you are knowledgeable about MSBuild and have
+          created a backup copy.  Incorrect changes to this file will make it
+          impossible to load or build your projects from the command-line or the IDE.
+
+Copyright (C) Microsoft Corporation. All rights reserved.
+***********************************************************************************************
+-->
+
+<!--
+  This is a hand-made custom toolset integration by Benn Herrera of Reification, Incorporated.
+  It suits our needs specifically. You can use it if you like, but we do not represent this as being fit or even safe for anyone.
+  This Toolset.props file contains some workarounds for Android NDK r17 compatibility.
+  These changes will be superseded by a future release of visual studio. The toolset directory is named Clang_6 specifically so when Clang_6_0 is release by MS the new
+  toolchain will appear after this one lexically and will get picked as the default by cmake.
+  1) LLVMVersion is getting hard-set to 7.0.2 - a change in the version text file format has made reading the whole file (what msbuild does to get version string) fail.
+  2) As of NDK 16b each platform api level no longer has its own sysroot include tree under its platform directory, there is a common one in <ndk_root>/sysroot - include paths have been adjusted to reflect this.
+  3) As of NDK 17 libandroid_support.a is gone (folded into libc++?)
+-->
+
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildThisFileDirectory)ImportBefore\*.props" Condition="Exists('$(MSBuildThisFileDirectory)ImportBefore')" />
+
+  <Import Project="$(VCTargetsPath)\Application Type\$(ApplicationType)\$(ApplicationTypeRevision)\Android.Common.props" />
+
+  <PropertyGroup>
+    <ClangTarget>aarch64-none-linux-androideabi</ClangTarget>
+    <MSVCErrorReport>true</MSVCErrorReport>
+    <ClangToolExe>clang.exe</ClangToolExe>
+    <ClangVersion>7.0</ClangVersion>
+    <LLVMVersion>7.0.2</LLVMVersion>	
+    <!-- force StlLibraryName back to stl lib and abi - eliminate reference to android_support -->	
+    <StlLibraryName>$(UseOfStl);c++abi;</StlLibraryName>
+
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <ExecutablePath Condition="'$(ExecutablePath)' == ''">$(LLVMToolchainPrebuiltRoot)\bin;$(ToolchainPrebuiltPath)\bin;$(MSBuild_ExecutablePath);$(PATH);</ExecutablePath>
+    <IncludePath Condition="'$(IncludePath)' == ''">$(LLVMToolchainPrebuiltRoot)\lib64\clang\$(LLVMVersion)\include;</IncludePath>
+    <ExcludePath Condition="'$(ExcludePath)' == ''">$(LLVMToolchainPrebuiltRoot)\lib64\clang\$(LLVMVersion)\include;$(LLVMToolchainPrebuiltRoot)\bin;$(ToolchainPrebuiltPath)\bin;$(MSBuildToolsPath);$(MSBuildFrameworkToolsPath);$(MSBuild_ExecutablePath);$(SystemRoot)</ExcludePath>
+  </PropertyGroup>
+
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>
+        $(Sysroot)\usr\include;$(VS_NdkRoot)\sysroot\usr\include;$(VS_NdkRoot)\sysroot\usr\include\$(ToolchainName);$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <ThumbMode Condition="'$(ThumbMode)' != ''">$(ThumbMode)</ThumbMode>
+      <EnableNeonCodegen>false</EnableNeonCodegen>
+    </ClCompile>
+    <Link>
+      <LibraryDependencies Condition="'$(StlIsStaticLibrary)' != 'false'">$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(StlLibraryPath);$(VS_NdkRoot)\sysroot\usr\lib\$(ToolchainName)</AdditionalLibraryDirectories>
+    </Link>
+  </ItemDefinitionGroup>
+
+  <Import Project="$(VCTargetsPath)\Application Type\$(ApplicationType)\$(ApplicationTypeRevision)\Android.Clang.Common.props" />
+
+  <Import Project="$(MSBuildThisFileDirectory)ImportAfter\*.props" Condition="Exists('$(MSBuildThisFileDirectory)ImportAfter')" />
+</Project>
