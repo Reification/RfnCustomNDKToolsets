@@ -32,9 +32,11 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <ClangToolExe>clang.exe</ClangToolExe>
     <ClangVersion>7.0</ClangVersion>
     <LLVMVersion>7.0.2</LLVMVersion>	
-    <!-- force StlLibraryName back to stl lib and abi - eliminate reference to android_support -->	
-    <StlLibraryName>$(UseOfStl);c++abi;</StlLibraryName>
 
+    <!-- force StlLibraryName back to stl lib and abi - eliminate reference to android_support -->	
+    <StlAdditionalDependencies Condition="'$(StlIsStaticLibrary)' == 'true'" />
+    <StlAdditionalDependencies Condition="'$(StlIsStaticLibrary)' != 'true'">$(StlLibraryPath)\lib$(UseOfStl).so</StlAdditionalDependencies>
+    <StlLibraryName>$(UseOfStl);c++abi;</StlLibraryName>
   </PropertyGroup>
   
   <PropertyGroup>
