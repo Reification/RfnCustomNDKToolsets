@@ -16,7 +16,7 @@
     <copyright>Open Source, MIT License (2018) Reification Incorporated</copyright>
     <tags>MSVS Android NDK clang</tags>
     <dependencies>
-      <dependency id="visualstudio2017-workload-nativemobile" version="15.0"/>
+      <dependency id="visualstudio2017-workload-nativemobile" version="1.2"/>
     </dependencies>
     <summary></summary>
   </metadata>
