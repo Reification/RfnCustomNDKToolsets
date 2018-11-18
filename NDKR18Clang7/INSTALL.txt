@@ -1,4 +1,4 @@
-This toolset allows use of Android NDK R18 Clang 7.0 with visual studio mobile development for android workflow.
+This toolset allows use of Android NDK R18x Clang 7.0 with visual studio mobile development for android workflow.
 
 See comments in ToolSet.props for details on what modifications were necessary to make this work.
 

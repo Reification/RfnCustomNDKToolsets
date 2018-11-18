@@ -4,7 +4,7 @@ $role=[System.Security.Principal.WindowsBuiltInRole]::Administrator
 
 if (!$principal.IsInRole($role)) {
    $pinfo = New-Object System.Diagnostics.ProcessStartInfo "powershell"
-   [string[]]$arguments = @("-ExecutionPolicy","Bypass",$myInvocation.MyCommand.Definition)
+   [string[]]$arguments = @("-NoExit", "-ExecutionPolicy","Bypass",$myInvocation.MyCommand.Definition)
    foreach ($key in $myInvocation.BoundParameters.Keys) {
        $arguments += ,@("-$key")
        $arguments += ,@($myInvocation.BoundParameters[$key])
@@ -19,9 +19,7 @@ $Host.UI.RawUI.WindowTitle = "Reification Android NDK r18 Clang 7 MSVS Toolset I
 
 function Install-Failed($message) {
     Write-Error $message
-    Write-Host -NoNewLine "Press any key to continue..."
-    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-    exit
+    exit 1
 }
 
 function Get-Registry($key, $valuekey = "") {
@@ -38,8 +36,8 @@ if (!$VSInstallDir) {
 }
 
 $VSArm64ToolsetsDir = "${VSInstallDir}Common7\IDE\VC\VCTargets\Application Type\Android\3.0\Platforms\ARM64\PlatformToolsets"
-$ClangToolsetName = "Clang_7_ndk-r18"
-$TargetToolsetPath = "$VSArm64ToolsetsDir\$ClangToolsetName"
+$ToolsetName = "Clang_7_ndk-r18"
+$TargetToolsetPath = "$VSArm64ToolsetsDir\$ToolsetName"
 
 if (!$VSInstallDir) {
     Install-Failed "Visual Studio 2017 not installed."
@@ -50,10 +48,20 @@ if(!(Test-Path $VSArm64ToolsetsDir)) {
 }
 
 $rootDir = Split-Path -Parent $myInvocation.MyCommand.Definition | Split-Path -Parent
-$SourceToolsetPath = "$rootDir\assets\Clang_7"
+$SourceToolsetPath = "$rootDir\assets"
+
+function Uninstall() {
+    if(Test-Path "$TargetToolsetPath") {
+        Remove-Item "$TargetToolsetPath" -Recurse
+        "Toolset integration uninstalled."
+    } else {
+        "$($ToolsetName) is not installed."
+    }
+}
 
 function Install () {
     if(Test-Path "$TargetToolsetPath") {
+        "$($ToolsetName) being removed and re-installed."
         Remove-Item "$TargetToolsetPath" -Recurse
     }
     Copy-Item -Path "$SourceToolsetPath" -Destination "$TargetToolsetPath" -Recurse -Force
@@ -61,19 +69,10 @@ function Install () {
     "Toolset integration installed."
 }
 
-function Uninstall() {
-    if(Test-Path "$TargetToolsetPath") {
-        Remove-Item "$TargetToolsetPath" -Recurse
-    }
-
-    "Toolset integration uninstalled."
-}
-
-
 ""
-"=== Install configuration ==="
+"=== Configuration ==="
 "* Target Platform: Android ARM64"
-"* Clang 7.0 toolset: $ClangToolsetName"
+"* Clang 7.0 toolset: $ToolsetName"
 "* At $TargetToolsetPath"
 ""
 
@@ -89,10 +88,7 @@ if(Test-Path $TargetToolsetPath) {
 
 if( $Operation -ne "Uninstall" ) {
     if ((Read-Host "${Operation}? (Y/n)") -match "n|no") {
-        "operation canceled by user."
-        Write-Host -NoNewLine "Press any key to continue..."
-        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-        exit
+        Install-Failed "operation canceled by user."
     }
 }
 
@@ -101,7 +97,3 @@ if ($Operation -eq "Uninstall") {
 } else {
     Install
 }
-
-Write-Host -NoNewLine "Press any key to continue..."
-$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-""

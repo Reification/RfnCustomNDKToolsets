@@ -1,1 +1,0 @@
-@powershell -ExecutionPolicy Bypass scripts\install.ps1 "%*"
