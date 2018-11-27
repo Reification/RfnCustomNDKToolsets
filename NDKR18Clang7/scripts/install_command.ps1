@@ -4,7 +4,7 @@ $role=[System.Security.Principal.WindowsBuiltInRole]::Administrator
 
 if (!$principal.IsInRole($role)) {
    $pinfo = New-Object System.Diagnostics.ProcessStartInfo "powershell"
-   [string[]]$arguments = @("-NoExit", "-ExecutionPolicy","Bypass",$myInvocation.MyCommand.Definition)
+   [string[]]$arguments = @("-ExecutionPolicy","Bypass",$myInvocation.MyCommand.Definition)
    foreach ($key in $myInvocation.BoundParameters.Keys) {
        $arguments += ,@("-$key")
        $arguments += ,@($myInvocation.BoundParameters[$key])
@@ -19,6 +19,7 @@ $Host.UI.RawUI.WindowTitle = "Reification Android NDK r18 Clang 7 MSVS Toolset I
 
 function Install-Failed($message) {
     Write-Error $message
+    cmd /C pause
     exit 1
 }
 
@@ -97,3 +98,5 @@ if ($Operation -eq "Uninstall") {
 } else {
     Install
 }
+
+cmd /C pause
