@@ -19,6 +19,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   1) LLVMVersion is getting hard-set to 7.0.2 - a change in the version text file format has made reading the whole file (what msbuild does to get version string) fail.
   2) As of NDK 16b each platform api level no longer has its own sysroot include tree under its platform directory, there is a common one in <ndk_root>/sysroot - include paths have been adjusted to reflect this.
   3) As of NDK 17 libandroid_support.a is gone (folded into libc++?)
+  4) As of NDK R19 - do not add explicit sysroot include paths or additional link lib paths to command line, just specify system root.
 -->
 
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
@@ -30,10 +31,10 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <ClangTarget>aarch64-none-linux-androideabi</ClangTarget>
     <MSVCErrorReport>true</MSVCErrorReport>
     <ClangToolExe>clang.exe</ClangToolExe>
-    <ClangVersion>7.0</ClangVersion>
-    <LLVMVersion>7.0.2</LLVMVersion>	
+    <ClangVersion>8.0</ClangVersion>
+    <LLVMVersion>8.0.2</LLVMVersion>  
 
-    <!-- force StlLibraryName back to stl lib and abi - eliminate reference to android_support -->	
+    <!-- force StlLibraryName back to stl lib and abi - eliminate reference to android_support -->  
     <StlAdditionalDependencies Condition="'$(StlIsStaticLibrary)' == 'true'" />
     <StlAdditionalDependencies Condition="'$(StlIsStaticLibrary)' != 'true'">$(StlLibraryPath)\lib$(UseOfStl).so</StlAdditionalDependencies>
     <StlLibraryName>$(UseOfStl);c++abi;</StlLibraryName>
@@ -41,20 +42,16 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   
   <PropertyGroup>
     <ExecutablePath Condition="'$(ExecutablePath)' == ''">$(LLVMToolchainPrebuiltRoot)\bin;$(ToolchainPrebuiltPath)\bin;$(MSBuild_ExecutablePath);$(PATH);</ExecutablePath>
-    <IncludePath Condition="'$(IncludePath)' == ''">$(LLVMToolchainPrebuiltRoot)\lib64\clang\$(LLVMVersion)\include;</IncludePath>
-    <ExcludePath Condition="'$(ExcludePath)' == ''">$(LLVMToolchainPrebuiltRoot)\lib64\clang\$(LLVMVersion)\include;$(LLVMToolchainPrebuiltRoot)\bin;$(ToolchainPrebuiltPath)\bin;$(MSBuildToolsPath);$(MSBuildFrameworkToolsPath);$(MSBuild_ExecutablePath);$(SystemRoot)</ExcludePath>
   </PropertyGroup>
 
   <ItemDefinitionGroup>
     <ClCompile>
-      <AdditionalIncludeDirectories>
-        $(Sysroot)\usr\include;$(VS_NdkRoot)\sysroot\usr\include;$(VS_NdkRoot)\sysroot\usr\include\$(ToolchainName);$(StlIncludeDirectories)%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <ThumbMode Condition="'$(ThumbMode)' != ''">$(ThumbMode)</ThumbMode>
       <EnableNeonCodegen>false</EnableNeonCodegen>
     </ClCompile>
     <Link>
       <LibraryDependencies Condition="'$(StlIsStaticLibrary)' != 'false'">$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(StlLibraryPath);$(VS_NdkRoot)\sysroot\usr\lib\$(ToolchainName)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(StlLibraryPath)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
 
