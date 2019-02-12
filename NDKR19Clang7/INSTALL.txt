@@ -1,0 +1,7 @@
+This toolset allows use of Android NDK R19x Clang 7.0 with visual studio mobile development for android workflow.
+
+See comments in ToolSet.props for details on what modifications were necessary to make this work.
+
+Just run install.bat.
+
+To uninstall run install.bat and respond with 'y' when asked if you want to uninstall.
