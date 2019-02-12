@@ -16,7 +16,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
   This Toolset.props file contains some workarounds for Android NDK r17 compatibility.
   These changes will be superseded by a future release of visual studio. The toolset directory is named Clang_6 specifically so when Clang_6_0 is release by MS the new
   toolchain will appear after this one lexically and will get picked as the default by cmake.
-  1) LLVMVersion is getting hard-set to 7.0.2 - a change in the version text file format has made reading the whole file (what msbuild does to get version string) fail.
+  1) LLVMVersion is getting hard-set to 8.0.2 - a change in the version text file format in version r18 made reading the whole file (what msbuild does to get version string) fail.
   2) As of NDK 16b each platform api level no longer has its own sysroot include tree under its platform directory, there is a common one in <ndk_root>/sysroot - include paths have been adjusted to reflect this.
   3) As of NDK 17 libandroid_support.a is gone (folded into libc++?)
   4) As of NDK R19 - do not add explicit sysroot include paths or additional link lib paths to command line, just specify system root.

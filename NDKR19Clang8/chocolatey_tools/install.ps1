@@ -1,3 +1,8 @@
+function Install-Failed($message) {
+    Write-Error $message
+    exit 1
+}
+
 function Get-Registry($key, $valuekey = "") {
     $reg = Get-Item -Path $key -ErrorAction SilentlyContinue
     if ($reg) {
@@ -12,23 +17,35 @@ if (!$VSInstallDir) {
 }
 
 $VSArm64ToolsetsDir = "${VSInstallDir}Common7\IDE\VC\VCTargets\Application Type\Android\3.0\Platforms\ARM64\PlatformToolsets"
-$ToolsetName = "Clang_7_ndk-r19"
+$ToolsetName = "Clang_8_ndk-r19"
 $TargetToolsetPath = "$VSArm64ToolsetsDir\$ToolsetName"
 
-function Uninstall() {
+if (!$VSInstallDir) {
+    Install-Failed "Visual Studio 2017 not installed."
+}
+
+if(!(Test-Path $VSArm64ToolsetsDir)) {
+    Install-Failed( "Visual Studio C++ Mobile Workflow for Android not installed." )
+}
+
+$rootDir = Split-Path -Parent $myInvocation.MyCommand.Definition | Split-Path -Parent
+$SourceToolsetPath = "$rootDir\assets"
+
+function Install () {
     if(Test-Path "$TargetToolsetPath") {
+        "$($ToolsetName) being removed and re-installed."
         Remove-Item "$TargetToolsetPath" -Recurse
-        "Toolset integration uninstalled."
-    } else {
-        "$($ToolsetName) not installed."
     }
+    Copy-Item -Path "$SourceToolsetPath" -Destination "$TargetToolsetPath" -Recurse -Force
+
+    "Toolset integration installed."
 }
 
 ""
 "=== Configuration ==="
 "* Target Platform: Android ARM64"
-"* Clang 7.0 toolset: $ToolsetName"
+"* Clang 8.0 toolset: $ToolsetName"
 "* At $TargetToolsetPath"
 ""
 
-Uninstall
+Install

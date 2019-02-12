@@ -15,7 +15,7 @@ if (!$principal.IsInRole($role)) {
    exit
 }
 
-$Host.UI.RawUI.WindowTitle = "Reification Android NDK r19 Clang 7 MSVS Toolset Installer"
+$Host.UI.RawUI.WindowTitle = "Reification Android NDK r19 Clang 8 MSVS Toolset Installer"
 
 function Install-Failed($message) {
     Write-Error $message
@@ -37,7 +37,7 @@ if (!$VSInstallDir) {
 }
 
 $VSArm64ToolsetsDir = "${VSInstallDir}Common7\IDE\VC\VCTargets\Application Type\Android\3.0\Platforms\ARM64\PlatformToolsets"
-$ToolsetName = "Clang_7_ndk-r19"
+$ToolsetName = "Clang_8_ndk-r19"
 $TargetToolsetPath = "$VSArm64ToolsetsDir\$ToolsetName"
 
 if (!$VSInstallDir) {
@@ -73,7 +73,7 @@ function Install () {
 ""
 "=== Configuration ==="
 "* Target Platform: Android ARM64"
-"* Clang 7.0 toolset: $ToolsetName"
+"* Clang 8.0 toolset: $ToolsetName"
 "* At $TargetToolsetPath"
 ""
 

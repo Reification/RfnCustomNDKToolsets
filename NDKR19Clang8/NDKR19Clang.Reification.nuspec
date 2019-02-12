@@ -11,7 +11,7 @@
     <!-- url to an icon is only important if the package is going to be published on chocolatey.org -->
     <!-- <iconUrl></iconUrl> -->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>MSVS 2017 Toolset integration allowing use of Android NDK r19+ Clang 7.0 for ARM64</description>
+    <description>MSVS 2017 Toolset integration allowing use of Android NDK r19+ Clang 8.0 for ARM64</description>
     <releaseNotes>Note: Android ARM64 toolchain only!</releaseNotes>
     <copyright>Open Source, MIT License (2018) Reification Incorporated</copyright>
     <tags>MSVS Android NDK clang</tags>
