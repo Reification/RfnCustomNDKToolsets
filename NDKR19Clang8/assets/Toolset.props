@@ -48,6 +48,7 @@ Copyright (C) Microsoft Corporation. All rights reserved.
     <ClCompile>
       <ThumbMode Condition="'$(ThumbMode)' != ''">$(ThumbMode)</ThumbMode>
       <EnableNeonCodegen>false</EnableNeonCodegen>
+      <AdditionalOptions>%(AdditionalOptions) --sysroot $(VS_NdkRoot)/toolchains/llvm/prebuilt/windows-x86_64/sysroot -stdlib=libc++</AdditionalOptions>
     </ClCompile>
     <Link>
       <LibraryDependencies Condition="'$(StlIsStaticLibrary)' != 'false'">$(StlLibraryName);%(LibraryDependencies)</LibraryDependencies>
