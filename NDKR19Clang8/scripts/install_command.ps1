@@ -31,22 +31,29 @@ function Get-Registry($key, $valuekey = "") {
     return $null
 }
 
-$VSInstallDir = Get-Registry Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\VisualStudio\SxS\VS7 "15.0"
+$VSInstallDir = Get-Registry "Registry::HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\devenv.exe"
+
 if (!$VSInstallDir) {
-    $VSInstallDir = Get-Registry Registry::HKEY_LOCAL_MACHINE\SOFTWARE\WOW6432Node\Microsoft\VisualStudio\SxS\VS7 "15.0"
+  Install-Failed "Visual Studio 2017 or 2019 not installed."
 }
 
-$VSArm64ToolsetsDir = "${VSInstallDir}Common7\IDE\VC\VCTargets\Application Type\Android\3.0\Platforms\ARM64\PlatformToolsets"
+$VSInstallDir = $VSInstallDir -replace '"'
+
+$VSInstallDir = Split-Path -Parent "${VSInstallDir}" | Split-Path -Parent | Split-Path -Parent
+
+if ($VSInstallDir -match "2019") {
+  $VSArm64ToolsetsDir = "${VSInstallDir}\MSBuild\Microsoft\VC\v160\Application Type\Android\3.0\Platforms\ARM64\PlatformToolsets"
+} else {
+  $VSArm64ToolsetsDir = "${VSInstallDir}Common7\IDE\VC\VCTargets\Application Type\Android\3.0\Platforms\ARM64\PlatformToolsets"
+}
+
+if(!(Test-Path ${VSArm64ToolsetsDir})) {
+  ${VSArm64ToolsetsDir} 
+  Install-Failed( "Visual Studio C++ Mobile Workflow for Android not installed." )
+}
+
 $ToolsetName = "Clang_8_ndk-r19"
 $TargetToolsetPath = "$VSArm64ToolsetsDir\$ToolsetName"
-
-if (!$VSInstallDir) {
-    Install-Failed "Visual Studio 2017 not installed."
-}
-
-if(!(Test-Path $VSArm64ToolsetsDir)) {
-    Install-Failed( "Visual Studio C++ Mobile Workflow for Android not installed." )
-}
 
 $rootDir = Split-Path -Parent $myInvocation.MyCommand.Definition | Split-Path -Parent
 $SourceToolsetPath = "$rootDir\assets"
